@@ -1,6 +1,12 @@
 import cv2 
 import numpy as np
 import time
+import os
+from dotenv import load_dotenv
+
+import skimage
+
+load_dotenv()
 
 def video_reader(video, sample_rate=0):
     if isinstance(video, str):
@@ -21,18 +27,23 @@ def video_reader(video, sample_rate=0):
         frame_number += 1
         success = source.grab()
 
-video_path = '/home/wosukiro/University/proctoring_ml/openCV_test/test_1.mp4'
+video_path = os.getenv("VIDEO_PATH")
+default_cursor_path = os.getenv("DEFAULT_CURSOR_PATH")
+i_cursor_path = os.getenv("I_CURSOR_PATH")
+hand_cursor_path = os.getenv("HAND_CURSOR_PATH")
+
+
 video = cv2.VideoCapture(video_path)
 fps = video.get(cv2.CAP_PROP_FPS)
 
 
-template_bgr = cv2.imread("/home/wosukiro/University/proctoring_ml/openCV_test/left_ptr_002.png")
+template_bgr = cv2.imread(default_cursor_path)
 template_gray_orig = cv2.cvtColor(template_bgr, cv2.COLOR_BGR2GRAY)
 
-template_click_bgr = cv2.imread("/home/wosukiro/University/proctoring_ml/openCV_test/hand2_002.png")
+template_click_bgr = cv2.imread(hand_cursor_path)
 template_click_gray_orig = cv2.cvtColor(template_click_bgr, cv2.COLOR_BGR2GRAY)
 
-template_I_bgr = cv2.imread("/home/wosukiro/University/proctoring_ml/openCV_test/xterm_002.png")
+template_I_bgr = cv2.imread(i_cursor_path)
 template_I_gray_orig = cv2.cvtColor(template_I_bgr, cv2.COLOR_BGR2GRAY)
 
 templates = []
@@ -56,8 +67,6 @@ threshold = 0.35
 cursor_on_last_frame = False 
 
 for frame, timestamp, frame_number in video_reader(video, int(fps) // 128):
-    if frame_number < 19:
-        continue
     start_time = time.time()
     
     # Превращаем текущий кадр видео в границы
@@ -99,7 +108,7 @@ for frame, timestamp, frame_number in video_reader(video, int(fps) // 128):
         cursor_on_last_frame = False
     
     end_time = time.time()
-    print(f"Кадр {frame_number}, время: {end_time - start_time:.4f} с, уверенность: {best_match_val:.4f}")
+    print(f"[Кадр: {frame_number}] [Время: {end_time - start_time:.4f} с] [threshold: {best_match_val:.4f}]")
 
-    if frame_number > 30:
+    if frame_number > 20:
         break
