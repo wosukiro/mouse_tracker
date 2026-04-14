@@ -9,19 +9,19 @@ import skimage
 load_dotenv()
 
 def video_reader(video, sample_rate=0):
+    """video iterator, yielding frame and frame end timestamp in ms"""
     if isinstance(video, str):
         source = cv2.VideoCapture(video)
     elif isinstance(video, cv2.VideoCapture):
         source = video
     else:
-        raise ValueError('Invalid video source')
+        raise ValueError(f'"video" argument should be str-path (link) to video or cv2.VideoCapture, got {type(video)}')
 
     success = source.grab()
     frame_number = 0
     while success:
         if frame_number % (sample_rate + 1) == 0:
             _, frame = source.retrieve()
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             yield frame, source.get(cv2.CAP_PROP_POS_MSEC), frame_number
 
         frame_number += 1
@@ -31,7 +31,9 @@ video_path = os.getenv("VIDEO_PATH")
 default_cursor_path = os.getenv("DEFAULT_CURSOR_PATH")
 i_cursor_path = os.getenv("I_CURSOR_PATH")
 hand_cursor_path = os.getenv("HAND_CURSOR_PATH")
-
+if not (video_path and default_cursor_path and i_cursor_path and hand_cursor_path):
+    raise ValueError("Переменная VIDEO_SOURCE не найдена в .env!")
+    
 
 video = cv2.VideoCapture(video_path)
 fps = video.get(cv2.CAP_PROP_FPS)
