@@ -22,6 +22,7 @@ def video_reader(video, sample_rate=0):
     while success:
         if frame_number % (sample_rate + 1) == 0:
             _, frame = source.retrieve()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             yield frame, source.get(cv2.CAP_PROP_POS_MSEC), frame_number
 
         frame_number += 1
@@ -103,7 +104,7 @@ for frame, timestamp, frame_number in video_reader(video, int(fps) // 128):
         bottom_right = (top_left[0] + w, top_left[1] + h)
         
         cv2.rectangle(new_img, top_left, bottom_right, (0, 0, 255), 2)
-        cv2.imwrite(f'./openCV_test/squared_cursor/{frame_number}_res.png', new_img)
+        cv2.imwrite(f'./squared_cursor/{frame_number}_res.png', new_img)
 
     else: 
 
@@ -112,5 +113,5 @@ for frame, timestamp, frame_number in video_reader(video, int(fps) // 128):
     end_time = time.time()
     print(f"[Кадр: {frame_number}] [Время: {end_time - start_time:.4f} с] [threshold: {best_match_val:.4f}]")
 
-    if frame_number > 20:
+    if frame_number > 80:
         break

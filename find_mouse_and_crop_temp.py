@@ -45,7 +45,7 @@ fps = video.get(cv2.CAP_PROP_FPS)
 prev = None
 for frame, timestamp, frame_number in video_reader(video,fps// 128):
     # print(frame, timestamp, frame_number)
-    cv2.imwrite(f"./openCV_test/test_frames/{frame_number}.png", frame)
+    cv2.imwrite(f"./test_frames/{frame_number}.png", frame)
     
     if not isinstance(prev, type(None)):
         (score, diff) = structural_similarity(frame, prev, full=True)
@@ -55,10 +55,10 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
         if score*100 > 99:
 
             my_diff = np.where(abs(prev-frame)>10, 0, 255).astype(np.uint8)
-            cv2.imwrite(f"./openCV_test/test_frames/{frame_number}_0.png", my_diff)
+            cv2.imwrite(f"./test_frames/{frame_number}_0.png", my_diff)
 
             gray = 255 - cv2.absdiff(prev, frame)
-            cv2.imwrite(f"./openCV_test/test_frames/{frame_number}_1.png", gray)
+            cv2.imwrite(f"./test_frames/{frame_number}_1.png", gray)
             
             
             gray = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
@@ -66,7 +66,7 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
             diff = cv2.GaussianBlur(gray, (3, 3), 0)
             diff = cv2.normalize(diff, None, 0, 255, cv2.NORM_MINMAX)
 
-            cv2.imwrite(f"./openCV_test/test_frames/{frame_number}_2.png", diff)
+            cv2.imwrite(f"./test_frames/{frame_number}_2.png", diff)
 
             labels = cv2.threshold(diff, 200, 255, cv2.THRESH_BINARY)[1]
 
@@ -88,11 +88,11 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
 
             print("Найдено курсоров:", len(cursor_regions))
 
-            plt.figure(figsize=(12, 4))
-            plt.title("Labeled Regions")
-            plt.imshow(labels, cmap="nipy_spectral")
-            plt.axis("off")
-            plt.show()
+            # plt.figure(figsize=(12, 4))
+            # plt.title("Labeled Regions")
+            # plt.imshow(labels, cmap="nipy_spectral")
+            # plt.axis("off")
+            # plt.show()
 
             for i, r in enumerate(cursor_regions, start=1):
                 minr, minc, maxr, maxc = r.bbox
@@ -146,8 +146,8 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
                 rgba[:, :, 3] = alpha 
 
                 # Сохраняем
-                cv2.imwrite(f"cursor_template_{frame_number}_{i}.png", rgba)
-                cv2.imwrite(f"cursor_mask_{frame_number}_{i}.png", alpha)
+                cv2.imwrite(f"./cropped_temp/cursor_template_{frame_number}_{i}.png", rgba)
+                cv2.imwrite(f"./cropped_mask/cursor_mask_{frame_number}_{i}.png", alpha)
 
                 print(f"cursor {i}: bbox=({minc}, {minr})-({maxc}, {maxr})")
 
