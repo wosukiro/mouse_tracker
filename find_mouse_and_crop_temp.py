@@ -48,10 +48,9 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
     cv2.imwrite(f"./test_frames/{frame_number}.png", frame)
     
     if not isinstance(prev, type(None)):
+        start_time = time.time()
         (score, diff) = structural_similarity(frame, prev, full=True)
         
-        
-        print("Image Similarity: {:.4f}%".format(score * 100))
         if score*100 > 99:
 
             my_diff = np.where(abs(prev-frame)>10, 0, 255).astype(np.uint8)
@@ -86,7 +85,10 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
                     if (h/w < 3 if h/w > 1 else w/h < 3):
                         cursor_regions.append(r)
 
-            print("Найдено курсоров:", len(cursor_regions))
+            if len(cursor_regions) == 0:
+                end_time = time.time()
+                print(f"[Кадры: {frame_number-1, frame_number}] [Время: {end_time - start_time:.4f} с] [Процент сходства кадров: {(score * 100):.4f}%] [Найдено курсоров: 0]")
+
 
             # plt.figure(figsize=(12, 4))
             # plt.title("Labeled Regions")
@@ -149,10 +151,12 @@ for frame, timestamp, frame_number in video_reader(video,fps// 128):
                 cv2.imwrite(f"./cropped_temp/cursor_template_{frame_number}_{i}.png", rgba)
                 cv2.imwrite(f"./cropped_mask/cursor_mask_{frame_number}_{i}.png", alpha)
 
-                print(f"cursor {i}: bbox=({minc}, {minr})-({maxc}, {maxr})")
-
-            
-            
+                if i == 1:
+                    end_time = time.time()
+                    print(f"[Кадры: {frame_number-1, frame_number}] [Время: {end_time - start_time:.4f} с] [Процент сходства кадров: {(score * 100):.4f}%] [Найдено курсоров: {len(cursor_regions)}]")
+                print(f"[Курсор {i}: bbox = ({minc}, {minr})-({maxc}, {maxr})]")    
+        else:
+            print(f"[Кадры: {frame_number-1, frame_number}] [Процент сходства кадров: {(score * 100):.4f}%]")
 
             
 
